@@ -9,22 +9,6 @@ typedef struct imageScale {
     unsigned int width, height;
 } Image;
 
-
-int max(int a, int b) {
-    if (a > b)
-        return a;
-    return b;
-}
-
-int pixel_igual(Pixel p1, Pixel p2) {
-    if (p1.r == p2.r &&
-        p1.g == p2.g &&
-        p1.b == p2.b)
-        return 1;
-    return 0;
-}
-
-
 Image escala_de_cinza(Image img) {
     /*for (unsigned int i = 0; i < img.h; ++i) {
         for (unsigned int j = 0; j < img.w; ++j) {
