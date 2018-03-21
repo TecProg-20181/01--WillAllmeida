@@ -1,19 +1,12 @@
 #include <stdio.h>
 
-typedef struct _pixel {
-    unsigned short int r;
-    unsigned short int g;
-    unsigned short int b;
+typedef struct pixelColor {
+    unsigned short int red, green, blue;
 } Pixel;
 
-typedef struct _image {
-    // [width][height][rgb]
-    // 0 -> r
-    // 1 -> g
-    // 2 -> b
+typedef struct imageScale {
     unsigned short int pixel[512][512][3];
-    unsigned int w;
-    unsigned int h;
+    unsigned int width, height;
 } Image;
 
 
