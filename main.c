@@ -10,50 +10,45 @@ typedef struct imageScale {
 } Image;
 
 Image escala_de_cinza(Image img) {
-    /*for (unsigned int i = 0; i < img.h; ++i) {
-        for (unsigned int j = 0; j < img.w; ++j) {
-            print("%u", img.pixel[i][j][0] + img.pixel[i][j][1] + img.pixel[i][j][2]);
-        }
-    }*/
 
-    for (unsigned int i = 0; i < img.h; ++i) {
-        for (unsigned int j = 0; j < img.w; ++j) {
-            int media = img.pixel[i][j][0] +
-                        img.pixel[i][j][1] +
-                        img.pixel[i][j][2];
-            media /= 3;
-            img.pixel[i][j][0] = media;
-            img.pixel[i][j][1] = media;
-            img.pixel[i][j][2] = media;
+    for (unsigned int i = 0; i < img.height; ++i) {
+        for (unsigned int j = 0; j < img.width; ++j) {
+            int pixelAverage = img.pixel[i][j][0] +
+                          img.pixel[i][j][1] +
+                          img.pixel[i][j][2];
+            pixelAverage /= 3;
+
+            img.pixel[i][j][0] = pixelAverage;
+            img.pixel[i][j][1] = pixelAverage;
+            img.pixel[i][j][2] = pixelAverage;
         }
     }
 
     return img;
 }
 
-void blur(unsigned int h, unsigned short int pixel[512][512][3], int T, unsigned int w) {
-    for (unsigned int i = 0; i < h; ++i) {
-        for (unsigned int j = 0; j < w; ++j) {
-            Pixel media = {0, 0, 0};
+void blur(unsigned int height, unsigned short int pixel[512][512][3], int T, unsigned int width) {
+    for (unsigned int i = 0; i < height; ++i) {
+        for (unsigned int j = 0; j < width; ++j) {
+            Pixel average = {0, 0, 0};
 
-            int menor_h = (h - 1 > i + T/2) ? i + T/2 : h - 1;
-            int min_w = (w - 1 > j + T/2) ? j + T/2 : w - 1;
-            for(int x = (0 > i - T/2 ? 0 : i - T/2); x <= menor_h; ++x) {
-                for(int y = (0 > j - T/2 ? 0 : j - T/2); y <= min_w; ++y) {
-                    media.r += pixel[x][y][0];
-                    media.g += pixel[x][y][1];
-                    media.b += pixel[x][y][2];
+            int lowerHeight = (height - 1 > i + T/2) ? i + T/2 : height - 1;
+            int lowerWidth = (width - 1 > j + T/2) ? j + T/2 : width - 1;
+            for(int x = (0 > i - T/2 ? 0 : i - T/2); x <= lowerHeight; ++x) {
+                for(int y = (0 > j - T/2 ? 0 : j - T/2); y <= lowerWidth; ++y) {
+                    average.red += pixel[x][y][0];
+                    average.green += pixel[x][y][1];
+                    average.blue += pixel[x][y][2];
                 }
             }
 
-            // printf("%u", media.r)
-            media.r /= T * T;
-            media.g /= T * T;
-            media.b /= T * T;
+            media.red /= T * T;
+            media.green /= T * T;
+            media.blue /= T * T;
 
-            pixel[i][j][0] = media.r;
-            pixel[i][j][1] = media.g;
-            pixel[i][j][2] = media.b;
+            pixel[i][j][0] = media.red;
+            pixel[i][j][1] = media.green;
+            pixel[i][j][2] = media.blue;
         }
     }
 }
@@ -107,17 +102,16 @@ Image cortar_imagem(Image img, int x, int y, int w, int h) {
 int main() {
     Image img;
 
-    // read type of image
-    char p3[4];
-    scanf("%s", p3);
+    char imageType[4];
+    scanf("%s", imageType);
 
     // read width height and color of image
     int max_color;
-    scanf("%u %u %d", &img.w, &img.h, &max_color);
+    scanf("%u %u %d", &img.width, &img.height, &max_color);
 
     // read all pixels of image
-    for (unsigned int i = 0; i < img.h; ++i) {
-        for (unsigned int j = 0; j < img.w; ++j) {
+    for (unsigned int i = 0; i < img.height; ++i) {
+        for (unsigned int j = 0; j < img.width; ++j) {
             scanf("%hu %hu %hu", &img.pixel[i][j][0],
                                  &img.pixel[i][j][1],
                                  &img.pixel[i][j][2]);
@@ -138,7 +132,7 @@ int main() {
                 break;
             }
             case 2: { // Filtro Sepia
-                for (unsigned int x = 0; x < img.h; ++x) {
+                for (unsigned int x = 0; x < img.height; ++x) {
                     for (unsigned int j = 0; j < img.w; ++j) {
                         unsigned short int pixel[3];
                         pixel[0] = img.pixel[x][j][0];
