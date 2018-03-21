@@ -4,6 +4,15 @@
 #define GREEN 1
 #define BLUE 2
 
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
+
 typedef struct pixelColor {
     unsigned short int red, green, blue;
 } Pixel;
@@ -38,10 +47,10 @@ void blur(unsigned int height, unsigned short int pixel[512][512][3],
         for (unsigned int j = 0; j < width; ++j) {
             Pixel average = {0, 0, 0};
 
-            int lowerHeight = (height - 1 > i + T/2) ? i + T/2 : height - 1;
-            int lowerWidth = (width - 1 > j + T/2) ? j + T/2 : width - 1;
-            for(int x = (0 > i - T/2 ? 0 : i - T/2); x <= lowerHeight; ++x) {
-                for(int y = (0 > j - T/2 ? 0 : j - T/2); y <= lowerWidth; ++y) {
+            int lowerHeight = min(height - 1,i + T/2);
+            int lowerWidth = min(width - 1,j + T/2);
+            for(int x = max(0,i - T/2); x <= lowerHeight; ++x) {
+                for(int y = max(0,j - T/2); y <= lowerWidth; ++y) {
                     average.red += pixel[x][y][RED];
                     average.green += pixel[x][y][GREEN];
                     average.blue += pixel[x][y][BLUE];
@@ -149,15 +158,15 @@ int main() {
                         int p =  pixel[0] * .393 + pixel[1] * .769 + pixel[2]
                                 * .189;
 
-                        int menor_r = (255 >  p) ? p : 255;
+                        int menor_r = min(255,p);
                         img.pixel[x][j][RED] = menor_r;
 
                         p =  pixel[0] * .349 + pixel[1] * .686 + pixel[2] * .168;
-                        menor_r = (255 >  p) ? p : 255;
+                        menor_r = min(255,p);
                         img.pixel[x][j][GREEN] = menor_r;
 
                         p =  pixel[0] * .272 + pixel[1] * .534 + pixel[2] * .131;
-                        menor_r = (255 >  p) ? p : 255;
+                        menor_r = min(255,p);
                         img.pixel[x][j][BLUE] = menor_r;
                     }
                 }
