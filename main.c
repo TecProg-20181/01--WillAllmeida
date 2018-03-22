@@ -41,6 +41,8 @@ Image grayScale(Image img) {
 }
 
 Image sepia(Image img) {
+  int p; //pixel
+
   for (unsigned int x = 0; x < img.height; ++x) {
       for (unsigned int j = 0; j < img.width; ++j) {
           unsigned short int pixel[3];
@@ -48,19 +50,14 @@ Image sepia(Image img) {
           pixel[GREEN] = img.pixel[x][j][GREEN];
           pixel[BLUE] = img.pixel[x][j][BLUE];
 
-          int p =  pixel[0] * .393 + pixel[1] * .769 + pixel[2]
-                  * .189;
+          p =  pixel[RED] * .393 + pixel[GREEN] * .769 + pixel[BLUE] * .189;
+          img.pixel[x][j][RED] = min(255,p);
 
-          int menor_r = min(255,p);
-          img.pixel[x][j][RED] = menor_r;
+          p =  pixel[RED] * .349 + pixel[BLUE] * .686 + pixel[GREEN] * .168;
+          img.pixel[x][j][GREEN] = min(255,p);
 
-          p =  pixel[0] * .349 + pixel[1] * .686 + pixel[2] * .168;
-          menor_r = min(255,p);
-          img.pixel[x][j][GREEN] = menor_r;
-
-          p =  pixel[0] * .272 + pixel[1] * .534 + pixel[2] * .131;
-          menor_r = min(255,p);
-          img.pixel[x][j][BLUE] = menor_r;
+          p =  pixel[RED] * .272 + pixel[BLUE] * .534 + pixel[GREEN] * .131;
+          img.pixel[x][j][BLUE] = min(255,p);
       }
   }
 
@@ -99,8 +96,7 @@ void blur(unsigned int height, unsigned short int pixel[512][512][3],
 Image rightRotation(Image img) {
     Image aux;
 
-    aux.width = img.height;
-    aux.height = img.width;
+    aux.width = img.height, aux.height = img.width;
 
     for (unsigned int i = 0, y = 0; i < aux.height; ++i, ++y) {
         for (int j = aux.width - 1, x = 0; j >= 0; --j, ++x) {
@@ -127,8 +123,7 @@ Image invertColors(Image img) {
 }
 
 Image cutImage(Image img, int x, int y, int width, int height) {
-    img.width = width;
-    img.height = height;
+    img.width = width, img.height = height;
 
     for(int i = 0; i < height; ++i) {
         for(int j = 0; j < width; ++j) {
@@ -141,25 +136,39 @@ Image cutImage(Image img, int x, int y, int width, int height) {
     return img;
 }
 
-/*Image mirrorImage(Image img, int horizontal) {
-    int width = img.width, height = img.height;
+Image mirrorImage(int horizontal, Image img) {
+  int width = img.width, height = img.height;
 
-    if (horizontal == 1) width /= 2;
-    else height /= 2;
+  if (horizontal == 1) width /= 2;
+  else height /= 2;
 
-    for (int i = 0; i < height; ++i) {
+  for (int i = 0; i < height; ++i) {
       for (int j = 0; j < width; ++j) {
           int x = i, y = j;
 
           if (horizontal == 1) y = img.width - 1 - j;
           else x = img.height - 1 - i;
 
+          Pixel aux1;
+
+          aux1.red = img.pixel[i][j][RED];
+          aux1.green = img.pixel[i][j][GREEN];
+          aux1.blue = img.pixel[i][j][BLUE];
+
+          img.pixel[i][j][RED] = img.pixel[x][y][RED];
+          img.pixel[i][j][GREEN] = img.pixel[x][y][GREEN];
+          img.pixel[i][j][BLUE] = img.pixel[x][y][BLUE];
+
+          img.pixel[x][y][RED] = aux1.red;
+          img.pixel[x][y][GREEN] = aux1.green;
+          img.pixel[x][y][BLUE] = aux1.blue;
+
       }
-    }
+  }
 
   return img;
 }
-*/
+
 
 int main() {
     Image img;
@@ -189,56 +198,46 @@ int main() {
         scanf("%d", &option);
 
         switch(option) {
-            case 1: { // Escala de Cinza
+            case 1: {
                 img = grayScale(img);
                 break;
             }
-            case 2: { // Filtro Sepia
+            case 2: {
                 img = sepia(img);
                 break;
             }
-            case 3: { // Blur
+            case 3: {
                 int size;
                 scanf("%d", &size);
+
                 blur(img.height, img.pixel, size, img.width);
                 break;
             }
-            case 4: { // Rotacao
+            case 4: {
                 int rotations;
                 scanf("%d", &rotations);
                 rotations %= 4;
+
                 for (int j = 0; j < rotations; ++j) {
                     img = rightRotation(img);
                 }
                 break;
             }
-            case 5: { // Espelhamento
+            case 5: {
               int horizontal = 0;
-                scanf("%d", &horizontal);
+              scanf("%d", &horizontal);
 
-                int w = img.width, h = img.height;
-
-                if (horizontal == 1) w /= 2;
-                else h /= 2;
-
-                for (int i2 = 0; i2 < h; ++i2) {
-                    for (int j = 0; j < w; ++j) {
-                        int x = i2, y = j;
-
-                        if (horizontal == 1) y = img.width - 1 - j;
-                        else x = img.height - 1 - i2;
-
-                    }
-              }
-                break;
+              img = mirrorImage(horizontal, img);
+              break;
             }
-            case 6: { // Inversao de Cores
+            case 6: {
                 img = invertColors(img);
                 break;
             }
-            case 7: { // Cortar Imagem
+            case 7: {
                 int x, y;
                 scanf("%d %d", &x, &y);
+
                 int width, height;
                 scanf("%d %d", &width, &height);
 
