@@ -40,26 +40,54 @@ Image escala_de_cinza(Image img) {
     return img;
 }
 
+Image sepia(Image img) {
+  for (unsigned int x = 0; x < img.height; ++x) {
+      for (unsigned int j = 0; j < img.width; ++j) {
+          unsigned short int pixel[3];
+          pixel[RED] = img.pixel[x][j][RED];
+          pixel[GREEN] = img.pixel[x][j][GREEN];
+          pixel[BLUE] = img.pixel[x][j][BLUE];
+
+          int p =  pixel[0] * .393 + pixel[1] * .769 + pixel[2]
+                  * .189;
+
+          int menor_r = min(255,p);
+          img.pixel[x][j][RED] = menor_r;
+
+          p =  pixel[0] * .349 + pixel[1] * .686 + pixel[2] * .168;
+          menor_r = min(255,p);
+          img.pixel[x][j][GREEN] = menor_r;
+
+          p =  pixel[0] * .272 + pixel[1] * .534 + pixel[2] * .131;
+          menor_r = min(255,p);
+          img.pixel[x][j][BLUE] = menor_r;
+      }
+  }
+
+  return img;
+}
+
 void blur(unsigned int height, unsigned short int pixel[512][512][3],
-          int T, unsigned int width) {
+          int size, unsigned int width) {
 
     for (unsigned int i = 0; i < height; ++i) {
         for (unsigned int j = 0; j < width; ++j) {
             Pixel average = {0, 0, 0};
 
-            int lowerHeight = min(height - 1,i + T/2);
-            int lowerWidth = min(width - 1,j + T/2);
-            for(int x = max(0,i - T/2); x <= lowerHeight; ++x) {
-                for(int y = max(0,j - T/2); y <= lowerWidth; ++y) {
+            int lowerHeight = min(height - 1,i + size/2);
+            int lowerWidth = min(width - 1,j + size/2);
+
+            for(int x = max(0,i - size/2); x <= lowerHeight; ++x) {
+                for(int y = max(0,j - size/2); y <= lowerWidth; ++y) {
                     average.red += pixel[x][y][RED];
                     average.green += pixel[x][y][GREEN];
                     average.blue += pixel[x][y][BLUE];
                 }
             }
 
-            average.red /= T * T;
-            average.green /= T * T;
-            average.blue /= T * T;
+            average.red /= size * size;
+            average.green /= size * size;
+            average.blue /= size * size;
 
             pixel[i][j][RED] = average.red;
             pixel[i][j][GREEN] = average.green;
@@ -85,16 +113,17 @@ Image rotacionar90direita(Image img) {
     return rotacionada;
 }
 
-void inverter_cores(unsigned short int pixel[512][512][3],
-                    unsigned int width, unsigned int height) {
+Image inverter_cores(Image img) {
 
-    for (unsigned int i = 0; i < height; ++i) {
-        for (unsigned int j = 0; j < width; ++j) {
-            pixel[i][j][RED] = 255 - pixel[i][j][RED];
-            pixel[i][j][GREEN] = 255 - pixel[i][j][GREEN];
-            pixel[i][j][BLUE] = 255 - pixel[i][j][BLUE];
+    for (unsigned int i = 0; i < img.height; ++i) {
+        for (unsigned int j = 0; j < img.width; ++j) {
+            img.pixel[i][j][RED] = 255 - img.pixel[i][j][RED];
+            img.pixel[i][j][GREEN] = 255 - img.pixel[i][j][GREEN];
+            img.pixel[i][j][BLUE] = 255 - img.pixel[i][j][BLUE];
         }
     }
+
+    return img;
 }
 
 Image cortar_imagem(Image img, int x, int y, int w, int h) {
@@ -148,29 +177,7 @@ int main() {
                 break;
             }
             case 2: { // Filtro Sepia
-                for (unsigned int x = 0; x < img.height; ++x) {
-                    for (unsigned int j = 0; j < img.width; ++j) {
-                        unsigned short int pixel[3];
-                        pixel[RED] = img.pixel[x][j][RED];
-                        pixel[GREEN] = img.pixel[x][j][GREEN];
-                        pixel[BLUE] = img.pixel[x][j][BLUE];
-
-                        int p =  pixel[0] * .393 + pixel[1] * .769 + pixel[2]
-                                * .189;
-
-                        int menor_r = min(255,p);
-                        img.pixel[x][j][RED] = menor_r;
-
-                        p =  pixel[0] * .349 + pixel[1] * .686 + pixel[2] * .168;
-                        menor_r = min(255,p);
-                        img.pixel[x][j][GREEN] = menor_r;
-
-                        p =  pixel[0] * .272 + pixel[1] * .534 + pixel[2] * .131;
-                        menor_r = min(255,p);
-                        img.pixel[x][j][BLUE] = menor_r;
-                    }
-                }
-
+                img = sepia(img);
                 break;
             }
             case 3: { // Blur
@@ -209,7 +216,7 @@ int main() {
                 break;
             }
             case 6: { // Inversao de Cores
-                inverter_cores(img.pixel, img.width, img.height);
+                img = inverter_cores(img);
                 break;
             }
             case 7: { // Cortar Imagem
