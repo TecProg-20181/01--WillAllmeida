@@ -22,7 +22,7 @@ typedef struct imageScale {
     unsigned int width, height;
 } Image;
 
-Image grayScale(Image img) {
+Image applyGrayScale(Image img) {
 
     for (unsigned int i = 0; i < img.height; ++i) {
         for (unsigned int j = 0; j < img.width; ++j) {
@@ -40,7 +40,7 @@ Image grayScale(Image img) {
     return img;
 }
 
-Image sepia(Image img) {
+Image applySepia(Image img) {
   int p; //pixel
 
   for (unsigned int x = 0; x < img.height; ++x) {
@@ -64,17 +64,17 @@ Image sepia(Image img) {
   return img;
 }
 
-Image blur(Image img, int size, Pixel pixel[512][512]) {
+Image applyBlur(Image img, int size, Pixel pixel[512][512]) {
 
     for (unsigned int i = 0; i < img.height; ++i) {
         for (unsigned int j = 0; j < img.width; ++j) {
             Pixel average = {0, 0, 0};
 
-            int lowerHeight = min((img.height - 1),(i + size/2));
-            int lowerWidth = min((img.width - 1),(j + size/2));
+            int lowerHeight = min(img.height - 1,i + size/2);
+            int lowerWidth = min(img.width - 1,j + size/2);
 
-            for(int x = max(0, (i - size/2)); x <= lowerHeight; ++x) {
-                for(int y = max(0, (j - size/2)); y <= lowerWidth; ++y) {
+            for(int x = max(0, i - size/2); x <= lowerHeight; ++x) {
+                for(int y = max(0, j - size/2); y <= lowerWidth; ++y) {
                     average.red += pixel[x][y].red;
                     average.green += pixel[x][y].green;
                     average.blue += pixel[x][y].blue;
@@ -93,7 +93,7 @@ Image blur(Image img, int size, Pixel pixel[512][512]) {
     return img;
 }
 
-Image rightRotation(Image img) {
+Image applyRightRotaion(Image img) {
     Image aux;
 
     aux.width = img.height, aux.height = img.width;
@@ -136,7 +136,7 @@ Image cutImage(Image img, int x, int y, int width, int height) {
     return img;
 }
 
-Image mirrorImage(int horizontal, Image img) {
+Image applyMirrorImage(int horizontal, Image img) {
   int width = img.width, height = img.height;
 
   if (horizontal == 1) width /= 2;
@@ -199,18 +199,18 @@ int main() {
 
         switch(option) {
             case 1: {
-                img = grayScale(img);
+                img = applyGrayScale(img);
                 break;
             }
             case 2: {
-                img = sepia(img);
+                img = applySepia(img);
                 break;
             }
             case 3: {
                 int size;
                 scanf("%d", &size);
 
-                img = blur(img, size, img.pixel);
+                img = applyBlur(img, size, img.pixel);
                 break;
             }
             case 4: {
@@ -219,16 +219,16 @@ int main() {
                 rotations %= 4;
 
                 for (int j = 0; j < rotations; ++j) {
-                    img = rightRotation(img);
+                    img = applyRightRotaion(img);
                 }
                 break;
             }
             case 5: {
-              int horizontal = 0;
-              scanf("%d", &horizontal);
+                int horizontal = 0;
+                scanf("%d", &horizontal);
 
-              img = mirrorImage(horizontal, img);
-              break;
+                img = applyMirrorImage(horizontal, img);
+                break;
             }
             case 6: {
                 img = invertColors(img);
